@@ -1234,9 +1234,9 @@
         </div>
       </div>
       <div class="filter-bar">
-        <select id="filterCompany" onchange="applyFilter()"><option value="">Semua Company</option></select>
-        <select id="filterCampaign" onchange="applyFilter()"><option value="">Semua Campaign</option></select>
-        <select id="filterPrincipal" onchange="applyFilter()"><option value="">Semua Principal</option></select>
+        <select id="filterCompany" onchange="applyFilter()"><option value="">Company</option></select>
+        <select id="filterCampaign" onchange="applyFilter()"><option value="">Campaign</option></select>
+        <select id="filterPrincipal" onchange="applyFilter()"><option value="">Supplier - Principal</option></select>
         <input type="text" id="searchInput" placeholder="&#128269;  Cari..." oninput="applyFilter()">
         <button class="btn btn-secondary btn-sm" onclick="resetFilter()">Reset</button>
       </div>
@@ -1755,10 +1755,16 @@ async function buildWorkbook(g) {
 
 function buildFilename(g) {
   const c = s => s.replace(/[\\/:*?"<>|]/g,'_').trim();
-  const comp = c(g.company.split(' - ')[0] || g.company).substring(0,10);
+  const companyAbbrev = {
+    'Prooresult Kreasi Utama': 'PKU', 'Proresult Kreasi Utama': 'PKU',
+    'Prima Retail Indonesia': 'PRI'
+  };
+  const rawComp = g.company.split(' - ').slice(1).join(' - ') || g.company.split(' - ')[0] || g.company;
+  const compKey = Object.keys(companyAbbrev).find(k => rawComp.toLowerCase().includes(k.toLowerCase()));
+  const compShort = compKey ? companyAbbrev[compKey] : c(g.company.split(' - ')[0] || g.company).substring(0,10);
   const camp  = c(g.campaign).substring(0,30);
   const princ = c((g.principal.split(' - ').slice(1).join(' - ')||g.principal)).substring(0,20);
-  return `Claim_${comp}_${camp}_${princ}.xlsx`;
+  return `Claim_${compShort}_${camp}_${princ}.xlsx`;
 }
 
 async function downloadOne(idx) {
@@ -1996,10 +2002,16 @@ async function buildPdfContent(g) {
 
 function buildPdfFilename(g) {
   const c = s => s.replace(/[\\/:*?"<>|]/g,'_').trim();
-  const comp = c(g.company.split(' - ')[0] || g.company).substring(0,10);
+  const companyAbbrev = {
+    'Prooresult Kreasi Utama': 'PKU', 'Proresult Kreasi Utama': 'PKU',
+    'Prima Retail Indonesia': 'PRI'
+  };
+  const rawComp = g.company.split(' - ').slice(1).join(' - ') || g.company.split(' - ')[0] || g.company;
+  const compKey = Object.keys(companyAbbrev).find(k => rawComp.toLowerCase().includes(k.toLowerCase()));
+  const compShort = compKey ? companyAbbrev[compKey] : c(g.company.split(' - ')[0] || g.company).substring(0,10);
   const camp  = c(g.campaign).substring(0,30);
   const princ = c((g.principal.split(' - ').slice(1).join(' - ')||g.principal)).substring(0,20);
-  return `Claim_${comp}_${camp}_${princ}.pdf`;
+  return `Claim_${compShort}_${camp}_${princ}.pdf`;
 }
 
 async function renderHtmlToPdf(htmlContent, filename) {
